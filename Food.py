@@ -5,8 +5,38 @@ class Food(JsonObject):
     def __init__(self, name): #name = str
         super().__init__(name)
         if not self.file_exists(): #Generates json file on first creation
-            #define self.properties
+            self.duration = Food.get_duration()
             self.save_dict()
+
+    def get_duration():
+        duration = 0
+        duration_string = input('How many days will this keep? Press Enter if forever.')
+        if duration_string:
+            try:
+                duration = int(duration_string) #If valid entry
+                return duration
+            except TypeError: #If invalid entry
+                return Food.get_duration()
+        return duration #If Enter is pressed
+
+    def update(): #Modify as needed when new property is added - Single use only
+        import sys, os, json
+        for file_string in os.listdir('json'):
+            if not file_string.endswith('.json'):
+                pass
+            filepath = 'json/' + file_string
+            print(filepath)
+            print(type(filepath))
+            with open(filepath, 'r') as json_file:
+                json_dict = json.load(json_file)
+                if not 'name' in json_dict:
+                    json_dict['name'] = input('Enter name: \n')
+                print(json_dict)
+                if ('Continue? \n'):
+                    with open(filepath, 'w') as json_file:
+                        json.dump(json_dict, json_file)
+                else:
+                    continue
 
 class Vegetable(Food):
     def __init__(self, name):
