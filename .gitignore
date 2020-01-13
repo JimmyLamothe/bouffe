@@ -1,0 +1,6 @@
+*.py~
+__*
+lib/*
+bin/*
+pyvenv.cfg
+.*
