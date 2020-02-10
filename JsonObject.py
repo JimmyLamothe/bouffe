@@ -14,7 +14,7 @@ class JsonObject:
     def get_filename(self):
         return self.name + '.json'
 
-    def get_directory(self):
+    def get_directory(self): #Override for subdirectories
         return 'json/'
 
     def get_filepath(self):

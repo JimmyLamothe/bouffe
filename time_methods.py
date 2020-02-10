@@ -18,13 +18,25 @@ def today():
 
 def past_date(days):
     today = datetime.date.today()
-    timedelta_object = datetime.timedelta(days = days, hours = 0, minutes=0)
+    timedelta_object = datetime.timedelta(days = days, hours = 0, minutes = 0)
     past_date_object = today - timedelta_object
     past_date_string = date_string(past_date_object)
     return past_date_string
+
+def future_date(date, days):
+    timedelta_object = datetime.timedelta(days = days, hours = 0, minutes = 0)
+    future_date_object = date + timedelta_object
+    future_date_string = date_string(future_date_object)
+    return future_date_string
 
 def age(date_string_1, date_string_2):
     date_1 = date_object(date_string_1)
     date_2 = date_object(date_string_2)
     total_age = date_2 - date_1
     return age_string(total_age)
+
+def past(date_string_1):
+    date = date_object(date_string_1)
+    if datetime.date.today() > date:
+        return True
+    return False

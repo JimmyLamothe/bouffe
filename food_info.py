@@ -1,7 +1,7 @@
 from pathlib import Path
 from Food import Food
 
-json_path = Path('./json')
+json_path = Path('./json/food/')
 
 food_list = [x.stem for x in json_path.iterdir() if not x.stem[0] == '.']
 
