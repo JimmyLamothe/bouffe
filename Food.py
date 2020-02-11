@@ -12,14 +12,14 @@ class Food(JsonObject):
             if self.perishable() and not self.best_before():
                 self.duration = get_duration()
                 if self.duration == -1: #To allow correction of mistaken entry
-                    self.categories.pop('perishable')
+                    self.categories.remove('perishable')
             else:
                 self.duration = -1
             if self.perishable_opened():
                 print('Once opened,')
                 self.open_duration = get_duration()
                 if not self.open_duration: #To allow correction of mistaken entry
-                    self.categories.pop('perishable_opened')
+                    self.categories.remove('perishable_opened')
             self.save_dict()
 
     def get_directory(self):
@@ -69,6 +69,3 @@ class Food(JsonObject):
                         json.dump(json_dict, json_file)
                 else:
                     continue
-
-
-Food.update()

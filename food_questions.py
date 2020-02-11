@@ -13,7 +13,7 @@ def get_input(question):
         return response
 
 def get_name():
-    name = input('Enter food name. Press ENTER to cancel.')
+    name = input('Enter food name. Press ENTER to cancel.\n')
     return name
 
 def get_categories():

@@ -25,7 +25,8 @@ def past_date(days):
 
 def future_date(date, days):
     timedelta_object = datetime.timedelta(days = days, hours = 0, minutes = 0)
-    future_date_object = date + timedelta_object
+    date_obj = date_object(date)
+    future_date_object = date_obj + timedelta_object
     future_date_string = date_string(future_date_object)
     return future_date_string
 
