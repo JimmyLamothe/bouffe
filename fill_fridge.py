@@ -1,6 +1,7 @@
 from Container import Container
 from Food import Food
 from food_questions import get_input
+from utilities import backup_json
 
 def test_fill():
     test_fridge = Container('test')
@@ -30,3 +31,4 @@ def fill_fridge():
 #test_fill()
 #test_staples()
 fill_fridge()
+backup_json()

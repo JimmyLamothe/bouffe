@@ -16,6 +16,13 @@ def age_string(timedelta_object):
 def today():
     return date_string(datetime.date.today())
 
+def now():
+    now_string = date_string(datetime.datetime.now())
+    now_string = now_string.replace('-','_')
+    now_string = now_string.replace(' ','_')
+    now_string = now_string.replace(':','_')
+    return now_string[:-7]
+
 def past_date(days):
     today = datetime.date.today()
     timedelta_object = datetime.timedelta(days = days, hours = 0, minutes = 0)
