@@ -24,11 +24,19 @@ def test_staples():
 
 def fill_fridge():
     fridge = Container('JM')
-    fridge.fill_container()
+    #fridge.fill_container()
     print(fridge)
+    backup_json()
     
+def print_fridge():
+    fridge = Container('JM')
+    #fridge.fill_container()
+    print(fridge)
+
 
 #test_fill()
 #test_staples()
-fill_fridge()
-backup_json()
+#fill_fridge()
+update_fridge()
+print_fridge()
+#backup_json()

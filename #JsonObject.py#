@@ -15,17 +15,14 @@ class JsonObject:
         return self.name + '.json'
 
     def rename(self, new_name):
-        print('Renaming ' + self.name + ' to ' + new_name)
         old_filepath = self.get_filepath()
         new_filename = new_name + '.json'
         new_filepath = self.get_directory() + new_filename
-        new_dict = self.__dict__
-        new_dict['name'] = new_name
         with open(new_filepath, 'w') as json_file:
-            json.dump(new_dict, json_file)
-        os.remove(old_filepath)
-        print('done renaming')
-        
+            json.dump(self.__dict__, json_file)
+        print(old_filepath)
+        self.reset()
+
     def get_directory(self): #Override for subdirectories
         return 'json/'
 

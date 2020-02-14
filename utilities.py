@@ -1,3 +1,4 @@
+import uuid
 from zipfile import ZipFile
 from pathlib import Path
 import os
@@ -26,3 +27,6 @@ def backup_json():
                 filePath = os.path.join(folderName, filename)
                 # Add file to zip
                 zipObj.write(filePath)
+
+def get_uuid():
+    return str(uuid.uuid4())

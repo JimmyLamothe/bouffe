@@ -3,7 +3,7 @@ from JsonObject import JsonObject
 from Food import Food
 from food_info import food_list, print_food_list
 from food_questions import get_name, get_input, get_best_before_date
-from utilities import remove_dupes
+from utilities import remove_dupes, get_uuid
 
 class Container(JsonObject):
     def __init__(self, name):
@@ -16,7 +16,28 @@ class Container(JsonObject):
     def get_directory(self):
         return 'json/containers/'
 
-    def add_food(self):
+    def add_food(self, food_name, food_portions, food_date_string, bad_date):
+        id = get_uuid()
+        self.contents[id] = {'food_name' : food_name,
+                             'portions' : food_portions,
+                             'in_date' : food_date_string,
+                             'bad_date' : bad_date}
+        self.save_dict()
+        print('Food added to container. Saved to disk.\n')
+
+    def remove_food(self, id):
+        print('Removing ' + self.contents[id]['food_name'] + ' from ' + self.name)
+        del self.contents[id]
+        self.save_dict()
+
+    def transfer_food(self, destination, id):
+        print('Adding ' + self.contents[id]['food_name'] + ' to ' + destination.name)
+        destination.contents[id] = self.contents[id]
+        self.remove_food(id)
+        self.save_dict()
+        destination.save_dict()
+
+    def add_new_food(self):
         food_name = get_name()
         if not food_name:
             return True #Stop when fridge is full
@@ -48,12 +69,7 @@ class Container(JsonObject):
             bad_date = '2200-01-01'
         else:
             bad_date = time.future_date(food_date_string, food.duration)
-        self.contents[food_name] = {'portions' : food_portions,
-                                        'in_date' : food_date_string,
-                                        'bad_date' : bad_date}
-        self.save_dict()
-        print('Food added to container. Saved to disk.\n')
-        #return self.add_food()
+        self.add_food(food_name, food_portions, food_date_string, bad_date)
 
     def fill_container(self):
         print_food_list()
@@ -73,7 +89,8 @@ class Container(JsonObject):
             Food(food_name) #Inititalize new food
         self.staples.append(food_name)
         self.staples = remove_dupes(self.staples)
-        
+        self.save_dict()
+
     def define_staples(self):
         print_food_list()
         print('Enter essential foods for ' + self.name + '. Press ENTER when done.')
@@ -87,48 +104,72 @@ class Container(JsonObject):
         bad_date = time.get_future_date(time.today(), food.open_duration)
         self.contents[food_name]['bad_date'] = bad_date
 
-    def bad(self, food_name):
-        if time.past(self.contents[food_name]['bad_date']):
+    def freeze(self, freezer, id): #Reskin of transfer food - Possible to modify later
+        self.transfer_food(freezer, id)
+
+    def get_bad(self, id):
+        if time.past(self.contents[id]['bad_date']):
             return True
         return False
 
-    def age(self, food_name):
-        in_date = self.contents[food_name]['in_date']
+    def get_age(self, id):
+        in_date = self.contents[id]['in_date']
         food_age = time.age(in_date, time.today())
         return food_age
 
-    def get_bad_days(self, food_name):
-        bad_date = self.contents[food_name]['bad_date']
+    def get_bad_days(self, id):
+        bad_date = self.contents[id]['bad_date']
         bad_days = time.age(time.today(), bad_date)
         return bad_days
 
-    def get_portions(self, food_name):
-        portions = self.contents[food_name]['portions']
+    def get_food_name(self, id):
+        food_name = self.contents[id]['food_name']
+        return food_name
+
+    def get_portions(self, id):
+        portions = self.contents[id]['portions']
         return portions
 
-    def get_in_date(self, food_name):
-        in_date = self.contents[food_name]['in_date']
+    def get_in_date(self, id):
+        in_date = self.contents[id]['in_date']
         return in_date
 
-    def get_bad_date(self, food_name):
-        bad_date = self.contents[food_name]['bad_date']
+    def get_bad_date(self, id):
+        bad_date = self.contents[id]['bad_date']
         return bad_date
 
     def __repr__(self):
         return_string = ''
-        for food_name in self.contents:
-            portions = self.get_portions(food_name)
-            in_date = self.get_in_date(food_name)
-            bad_date = self.get_bad_date(food_name)
-            food_age = self.age(food_name)
+        for id in self.contents:
+            food_name = self.get_food_name(id)
+            portions = self.get_portions(id)
+            in_date = self.get_in_date(id)
+            bad_date = self.get_bad_date(id)
+            food_age = self.get_age(id)
             portion_string = '\n' + food_name + ': ' +  str(portions) + ' portions.\n'
             age_string = 'Âge: ' + food_age + ' jours.\n'
-            if self.bad(food_name):
+            if self.get_bad(id):
                 bad_string = 'Cet aliment est passé date.'
             else:
-                bad_days = self.get_bad_days(food_name)
+                bad_days = self.get_bad_days(id)
                 bad_string = 'Encore bon pour ' + bad_days + ' jours.\n\n'
                 if int(bad_days) > 60000:
                     bad_string = 'Pas de date d\'expiration\n\n'
             return_string += portion_string + age_string + bad_string
         return return_string
+
+    def update(self): #NOTE - Single use function - Change when underlying model changes
+        old_dict = self.contents
+        new_dict = {}
+        for name in old_dict:
+            id = get_uuid()
+            portions = old_dict[name]['portions']
+            in_date = old_dict[name]['in_date']
+            bad_date = old_dict[name]['bad_date']
+            new_dict[id] = {'food_name' : name,
+                            'portions' : portions,
+                            'in_date' : in_date,
+                            'bad_date' : bad_date}
+        self.contents = new_dict
+        self.save_dict() #NOTE - Almost always necessary
+
