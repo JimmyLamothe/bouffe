@@ -1,8 +1,10 @@
+import os
+from pathlib import Path
 import time_methods as time
 from JsonObject import JsonObject
 from Food import Food
 from food_info import food_list, print_food_list
-from food_questions import get_name, get_input, get_best_before_date
+from food_questions import get_name, get_input, get_best_before_date, get_choice
 from utilities import remove_dupes, get_uuid
 
 class Container(JsonObject):
@@ -30,6 +32,23 @@ class Container(JsonObject):
         del self.contents[id]
         self.save_dict()
 
+    def remove_food_by_name(self, name):
+        id = self.get_id_by_name(name)
+        self.remove_food(id)
+
+    def get_id_by_name(self, name):
+        possibilities = {key : index for key, index in self.contents.items()
+                         if self.contents[key]['food_name'] == name}
+        print('Choose from the following food items:\n')
+        print(possibilities)
+        ids = []
+        in_dates = []
+        for key in possibilities:
+            ids.append(key)
+            in_dates.append(possibilities[key]['in_date'])
+        choice = get_choice(in_dates)
+        return ids[choice]
+
     def transfer_food(self, destination, id):
         print('Adding ' + self.contents[id]['food_name'] + ' to ' + destination.name)
         destination.contents[id] = self.contents[id]
@@ -37,8 +56,9 @@ class Container(JsonObject):
         self.save_dict()
         destination.save_dict()
 
-    def add_new_food(self):
-        food_name = get_name()
+    def add_new_food(self, food_name = None):
+        if not food_name:
+            food_name = get_name()
         if not food_name:
             return True #Stop when fridge is full
         if food_name not in food_list:
@@ -126,9 +146,9 @@ class Container(JsonObject):
         food_name = self.contents[id]['food_name']
         return food_name
 
-    def get_portions(self, id):
-        portions = self.contents[id]['portions']
-        return portions
+    def get_quantity(self, id):
+        quantity = self.contents[id]['quantity']
+        return quantity
 
     def get_in_date(self, id):
         in_date = self.contents[id]['in_date']
@@ -142,34 +162,57 @@ class Container(JsonObject):
         return_string = ''
         for id in self.contents:
             food_name = self.get_food_name(id)
-            portions = self.get_portions(id)
+            quantity = self.get_quantity(id)
             in_date = self.get_in_date(id)
             bad_date = self.get_bad_date(id)
             food_age = self.get_age(id)
-            portion_string = '\n' + food_name + ': ' +  str(portions) + ' portions.\n'
+            name_string = food_name + ':\n'
+            if quantity == 'green':
+                quantity_string = 'Quantité suffisante.\n'
+            elif quantity == 'orange':
+                quantity_string = 'Presque terminé.\n'
+            else:
+                'BOGUE - Vérifier json pour la quantité'
             age_string = 'Âge: ' + food_age + ' jours.\n'
             if self.get_bad(id):
-                bad_string = 'Cet aliment est passé date.'
+                bad_string = 'Cet aliment est passé date.\n\n'
             else:
                 bad_days = self.get_bad_days(id)
                 bad_string = 'Encore bon pour ' + bad_days + ' jours.\n\n'
                 if int(bad_days) > 60000:
                     bad_string = 'Pas de date d\'expiration\n\n'
-            return_string += portion_string + age_string + bad_string
+            return_string += name_string + quantity_string + age_string + bad_string
         return return_string
 
     def update(self): #NOTE - Single use function - Change when underlying model changes
         old_dict = self.contents
         new_dict = {}
-        for name in old_dict:
-            id = get_uuid()
-            portions = old_dict[name]['portions']
-            in_date = old_dict[name]['in_date']
-            bad_date = old_dict[name]['bad_date']
+        for id in old_dict:
+            name = old_dict[id]['food_name']
+            in_date = old_dict[id]['in_date']
+            bad_date = old_dict[id]['bad_date']
             new_dict[id] = {'food_name' : name,
-                            'portions' : portions,
+                            'quantity' : 'green',
                             'in_date' : in_date,
                             'bad_date' : bad_date}
         self.contents = new_dict
         self.save_dict() #NOTE - Almost always necessary
 
+    #class variable
+    directory = 'json/containers/'
+
+    @staticmethod
+    def update_all(): #applies update to all containers in directory
+        directory = Container.directory
+        for filename in os.listdir(directory):
+            path_object = Path(directory + filename)
+            container_object = Container(path_object.stem)
+            container_object.update()
+
+    @staticmethod
+    def print_all():
+        directory = Container.directory
+        for filename in os.listdir(directory):
+            path_object = Path(directory + filename)
+            container_object = Container(path_object.stem)
+            print(container_object)

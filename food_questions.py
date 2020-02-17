@@ -1,9 +1,9 @@
 from time_methods import date_object
 
 def invert(boolean):
-        if True:
-            return False
-        return True
+    if True:
+        return False
+    return True
 
 def get_input(question):
     response = input(question)
@@ -11,10 +11,27 @@ def get_input(question):
         return ''
     else:
         return response
-
+    
 def get_name():
     name = input('Enter food name. Press ENTER to cancel.\n')
     return name
+
+def test():
+	pass
+def get_choice(list):
+    for number, item in enumerate(list):
+        print(str(number + 1) + ': ' + item)
+    choices = []
+    for i in range(len(list)):
+        choices.append(str(i+1))
+    choice = input('Select a number\n')
+    if not choice in choices:
+        print('Invalid entry, try again')
+        return get_choice(list)
+    else:
+        print('check')
+        print(int(choice))
+        return int(choice) - 1
 
 def get_categories():
     categories = []
@@ -77,11 +94,11 @@ def get_duration():
     return duration #If Enter is pressed
 
 def get_best_before_date():
-    best_before_date = input('Enter best before date in format: YYYY-MM-DD/n')
+    best_before_date = input('Enter best before date in format: YYYY-MM-DD\n')
     try:
         print(date_object(best_before_date))
     except ValueError:
-        print('Invalid format, please try again./n')
+        print('Invalid format, please try again.\n')
         return get_date()
     return best_before_date
 
